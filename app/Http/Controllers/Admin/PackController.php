@@ -97,6 +97,13 @@ class PackController extends Controller
             UserPack::assignPack($user->id, $pack);
         }
 
-        return back()->with('status', 'Customer created with default password "paper@123".');
+        return back()->with([
+            'status' => 'Customer created with default password "paper@123".',
+            'new_customer' => [
+                'email' => $user->email,
+                'password' => 'paper@123',
+                'login_url' => 'https://turnichecker.online/login',
+            ],
+        ]);
     }
 }

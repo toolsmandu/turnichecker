@@ -23,6 +23,37 @@
             {{ session('status') }}
         </div>
     @endif
+    @if (session('new_customer'))
+        @php
+            $newCustomer = session('new_customer');
+            $newCustomerCopy = "Email:{$newCustomer['email']}\nPassword:{$newCustomer['password']}\nLogin URL:{$newCustomer['login_url']}\n\nNote: Login and Submit your files. You will get your reports within 1 hour.";
+        @endphp
+        <div id="customer-popup" data-copy="{{ $newCustomerCopy }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:1000;">
+            <div style="background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.14);max-width:520px;width:90%;padding:18px;position:relative;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;">
+                    <div style="font-weight:700;font-size:1.05rem;">Customer Created</div>
+                    <button type="button" data-close-customer-popup style="border:0;background:transparent;font-size:1.2rem;cursor:pointer;line-height:1;color:#6b7280;">×</button>
+                </div>
+                <div style="display:grid;gap:8px;margin-bottom:12px;font-size:0.97rem;">
+                    <div><strong>Email:</strong> {{ $newCustomer['email'] }}</div>
+                    <div><strong>Password:</strong> {{ $newCustomer['password'] }}</div>
+                    <div><strong>Login URL:</strong> <a href="{{ $newCustomer['login_url'] }}" target="_blank" style="color:#2563eb;text-decoration:none;">{{ $newCustomer['login_url'] }}</a></div>
+                </div>
+                <div style="background:#f8fafc;border:1px dashed #d1d5db;border-radius:10px;padding:10px 12px;white-space:pre-line;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:0.92rem;margin-bottom:14px;">
+                    Email:{{ $newCustomer['email'] }}
+Password:{{ $newCustomer['password'] }}
+Login URL:{{ $newCustomer['login_url'] }}
+
+Note: Login and Submit your files. You will get your reports within 1 hour.
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <button id="customer-popup-copy" class="btn btn-primary" type="button">Copy details</button>
+                    <button data-close-customer-popup class="btn btn-ghost" type="button">Close</button>
+                    <span id="customer-popup-copy-status" style="color:#16a34a;font-weight:600;font-size:0.95rem;display:none;">Copied!</span>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <h3 style="margin:12px 0 6px;">Create Customer</h3>
     <form action="{{ route('admin.packs.customers.create') }}" method="POST" style="display:grid;gap:12px;margin-bottom:18px;">
@@ -103,6 +134,44 @@
             hiddenCustomer.value = ''; // clear selection when typing
             filterCustomers(e.target.value);
         });
+
+        const customerPopup = document.getElementById('customer-popup');
+        if (customerPopup) {
+            const copyButton = document.getElementById('customer-popup-copy');
+            const copyStatus = document.getElementById('customer-popup-copy-status');
+            const closeButtons = customerPopup.querySelectorAll('[data-close-customer-popup]');
+            const closePopup = () => {
+                customerPopup.style.display = 'none';
+            };
+
+            closeButtons.forEach(btn => btn.addEventListener('click', closePopup));
+
+            copyButton?.addEventListener('click', async () => {
+                const textToCopy = customerPopup.dataset.copy || '';
+
+                try {
+                    if (navigator?.clipboard?.writeText) {
+                        await navigator.clipboard.writeText(textToCopy);
+                    } else {
+                        const temp = document.createElement('textarea');
+                        temp.value = textToCopy;
+                        temp.setAttribute('readonly', '');
+                        temp.style.position = 'absolute';
+                        temp.style.left = '-9999px';
+                        document.body.appendChild(temp);
+                        temp.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(temp);
+                    }
+                    if (copyStatus) {
+                        copyStatus.style.display = 'inline';
+                        setTimeout(() => (copyStatus.style.display = 'none'), 1800);
+                    }
+                } catch (e) {
+                    alert('Could not copy to clipboard. Please copy manually.');
+                }
+            });
+        }
     </script>
 
     <h3 style="margin:12px 0 6px;">Existing Packs</h3>
