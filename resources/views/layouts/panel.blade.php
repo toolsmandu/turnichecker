@@ -172,7 +172,7 @@
                 @endphp
                 <div class="brand" style="gap:8px;">
                     @if ($panelLogo)
-                        <img src="{{ $panelLogo }}" alt="{{ $panelSettings->site_name ?? config('app.name', 'AI Plag') }} logo">
+<img src="{{ config('app.logo_url') ?? asset('public/logo.webp') }}" alt="{{ $settings->site_name ?? 'Logo' }}">
                     @else
                         <div class="brand-badge">AI</div>
                     @endif
