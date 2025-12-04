@@ -27,8 +27,14 @@ class DashboardController extends Controller
 
         $activePack = $user->packs()
             ->where('expires_at', '>', now())
+            ->where('quota_remaining', '>', 0)
             ->orderByDesc('expires_at')
             ->first();
+
+        // If the user has a valid pack, auto-mark subscription as active to prevent false blocks.
+        if (! $user->subscription_active && $activePack) {
+            $user->forceFill(['subscription_active' => true])->save();
+        }
 
         $submissions = $user->submissions()->latest()->paginate(10);
         $lastSubmission = $user->submissions()->latest()->first();
@@ -50,9 +56,6 @@ class DashboardController extends Controller
     public function submit(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (! $user->subscription_active) {
-            return back()->withErrors(['file' => 'Your subscription is inactive. Please contact support or an admin.']);
-        }
 
         $lastSubmission = $user->submissions()->latest()->first();
         if ($lastSubmission) {
@@ -69,6 +72,15 @@ class DashboardController extends Controller
             ->where('quota_remaining', '>', 0)
             ->orderByDesc('expires_at')
             ->first();
+
+        // Auto-reactivate if a valid pack exists but the flag is stale/inactive.
+        if (! $user->subscription_active && $pack) {
+            $user->forceFill(['subscription_active' => true])->save();
+        }
+
+        if (! $user->subscription_active) {
+            return back()->withErrors(['file' => 'Your subscription is inactive. Please contact support or an admin.']);
+        }
 
         if (! $pack) {
             return back()->withErrors(['file' => "You don't have enough credits! Please buy a new plan."]);
