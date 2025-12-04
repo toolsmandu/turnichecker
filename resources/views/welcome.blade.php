@@ -203,10 +203,7 @@
             <div class="links">
        
                 @auth
-                    <form action="{{ route('logout') }}" method="POST" style="margin:0;">
-                        @csrf
-                        <button type="submit" class="cta" style="background:#273047;box-shadow:none;">Logout</button>
-                    </form>
+                    <a class="cta" href="{{ url('/dashboard') }}" style="background:#273047;box-shadow:none;">My Dashboard</a>
                 @else
                     <a class="cta" href="{{ url('/login') }}">Login | Register</a>
                 @endauth
