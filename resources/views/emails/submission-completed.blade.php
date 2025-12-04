@@ -17,7 +17,7 @@
 </head>
 <body>
     <div class="card">
-        <span class="pill">Your submission is ready</span>
+        <span class="pill">Your Reports are ready</span>
         <div class="title">Submission #{{ $submission->submission_number }} is completed</div>
         <p class="meta">You can now download your reports from your dashboard.</p>
 
@@ -29,7 +29,7 @@
         <a class="cta" href="{{ $dashboardUrl }}" target="_blank">View in dashboard</a>
 
         <div class="footer">
-            If you did not request this, please contact support.
+            Reports will be automatically deleted from the server in next 72 hours.
         </div>
     </div>
 </body>

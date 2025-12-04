@@ -17,8 +17,7 @@
 </head>
 <body>
     <div class="card">
-        <span class="pill">New submission received</span>
-        <div class="title">Customer {{ $user->email }} just uploaded a file</div>
+        <div class="title">Customer {{ $user->email }} just uploaded a file for checking</div>
         <p class="meta">Below are the details of the submission.</p>
 
         <ul class="list">
@@ -28,10 +27,6 @@
         </ul>
 
         <a class="cta" href="{{ url('/dashboard') }}" target="_blank">Open dashboard</a>
-
-        <div class="footer">
-            You received this alert because you're listed as the admin contact.
-        </div>
     </div>
 </body>
 </html>

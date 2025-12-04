@@ -79,7 +79,7 @@ class DashboardController extends Controller
                     'submissionNumber' => $nextNumber,
                 ],
                 function ($message) use ($adminEmail) {
-                    $message->to($adminEmail)->subject('New submission received');
+                    $message->to($adminEmail)->subject('New submission received from Customer');
                 }
             );
         }
