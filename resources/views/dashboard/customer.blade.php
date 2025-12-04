@@ -41,14 +41,15 @@
     @endif
 
     @php
-        $hasActivePack = $activePack && $activePack->quota_remaining > 0 && $activePack->expires_at && $activePack->expires_at->isFuture();
+        $remainingSlots = $effectiveQuotaRemaining ?? ($activePack->quota_remaining ?? 0);
+        $hasActivePack = $activePack && $remainingSlots > 0 && $activePack->expires_at && $activePack->expires_at->isFuture();
     @endphp
     <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
             <strong>Available Slots:</strong>
             @if ($hasActivePack)
                 <span style="padding:8px 12px;background:#e5f2ff;border-radius:10px;font-weight:800;">
-                    {{ $activePack->quota_remaining }} Uploads
+                    {{ $remainingSlots }} Uploads
                 </span>
             @else
                 <span style="padding:8px 12px;background:#fee2e2;border-radius:10px;font-weight:800;color:#b91c1c;">No Active Plan</span>

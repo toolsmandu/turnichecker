@@ -27,12 +27,17 @@ class DashboardController extends Controller
 
         $activePack = $user->packs()
             ->where('expires_at', '>', now())
-            ->where('quota_remaining', '>', 0)
+            ->with(['pack'])
+            ->withCount([
+                'submissions as completed_submissions_count' => function ($query) {
+                    $query->where('status', 'completed');
+                },
+            ])
             ->orderByDesc('expires_at')
             ->first();
 
         // If the user has a valid pack, auto-mark subscription as active to prevent false blocks.
-        if (! $user->subscription_active && $activePack) {
+        if (! $user->subscription_active && $activePack && $activePack->remainingSlots() > 0) {
             $user->forceFill(['subscription_active' => true])->save();
         }
 
@@ -48,6 +53,7 @@ class DashboardController extends Controller
 
         return view('dashboard.customer', [
             'activePack' => $activePack,
+            'effectiveQuotaRemaining' => $activePack?->remainingSlots() ?? 0,
             'submissions' => $submissions,
             'cooldownRemaining' => $cooldownRemaining,
         ]);
@@ -69,12 +75,19 @@ class DashboardController extends Controller
 
         $pack = $user->packs()
             ->where('expires_at', '>', now())
-            ->where('quota_remaining', '>', 0)
+            ->with(['pack'])
+            ->withCount([
+                'submissions as completed_submissions_count' => function ($query) {
+                    $query->where('status', 'completed');
+                },
+            ])
             ->orderByDesc('expires_at')
             ->first();
 
+        $remainingSlots = $pack?->remainingSlots() ?? 0;
+
         // Auto-reactivate if a valid pack exists but the flag is stale/inactive.
-        if (! $user->subscription_active && $pack) {
+        if (! $user->subscription_active && $pack && $remainingSlots > 0) {
             $user->forceFill(['subscription_active' => true])->save();
         }
 
@@ -82,7 +95,7 @@ class DashboardController extends Controller
             return back()->withErrors(['file' => 'Your subscription is inactive. Please contact support or an admin.']);
         }
 
-        if (! $pack) {
+        if (! $pack || $remainingSlots <= 0) {
             return back()->withErrors(['file' => "You don't have enough credits! Please buy a new plan."]);
         }
 
