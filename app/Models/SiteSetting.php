@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 
 class SiteSetting extends Model
@@ -39,7 +40,7 @@ class SiteSetting extends Model
             return null;
         }
 
-        return asset('storage/'.$this->logo_path);
+        return Storage::disk('public')->url($this->logo_path);
     }
 
     public function howtoImageUrl(): ?string
@@ -48,6 +49,6 @@ class SiteSetting extends Model
             return null;
         }
 
-        return asset('storage/'.$this->howto_image_path);
+        return Storage::disk('public')->url($this->howto_image_path);
     }
 }
