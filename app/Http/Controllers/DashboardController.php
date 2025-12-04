@@ -31,10 +31,19 @@ class DashboardController extends Controller
             ->first();
 
         $submissions = $user->submissions()->latest()->paginate(10);
+        $lastSubmission = $user->submissions()->latest()->first();
+        $cooldownRemaining = 0;
+        if ($lastSubmission) {
+            $nextAllowed = $lastSubmission->created_at->copy()->addSeconds(30);
+            if ($nextAllowed->isFuture()) {
+                $cooldownRemaining = now()->diffInSeconds($nextAllowed);
+            }
+        }
 
         return view('dashboard.customer', [
             'activePack' => $activePack,
             'submissions' => $submissions,
+            'cooldownRemaining' => $cooldownRemaining,
         ]);
     }
 
@@ -43,6 +52,15 @@ class DashboardController extends Controller
         $user = $request->user();
         if (! $user->subscription_active) {
             return back()->withErrors(['file' => 'Your subscription is inactive. Please contact support or an admin.']);
+        }
+
+        $lastSubmission = $user->submissions()->latest()->first();
+        if ($lastSubmission) {
+            $nextAllowed = $lastSubmission->created_at->copy()->addSeconds(30);
+            if ($nextAllowed->isFuture()) {
+                $wait = now()->diffInSeconds($nextAllowed);
+                return back()->withErrors(['file' => "Please wait {$wait} more seconds before uploading another file."]);
+            }
         }
 
 

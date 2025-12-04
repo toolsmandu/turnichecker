@@ -58,6 +58,14 @@
                 <span style="padding:8px 12px;background:#fdf3c4;border-radius:10px;font-weight:800;">
                     {{ $activePack->expires_at->setTimezone('Asia/Kathmandu')->format('Y-m-d H:i') }}
                 </span>
+                @if (($cooldownRemaining ?? 0) > 0)
+                    <span id="cooldown-wrap" style="display:inline-flex;align-items:center;gap:6px;margin-left:8px;">
+                        <strong>Next submit:</strong>
+                        <span id="cooldown-timer" data-seconds="{{ $cooldownRemaining }}" style="padding:8px 12px;background:#fee2e2;border-radius:10px;font-weight:800;color:#b91c1c;">
+                            {{ $cooldownRemaining }}s
+                        </span>
+                    </span>
+                @endif
             @else
                 <span style="padding:8px 12px;background:#fee2e2;border-radius:10px;font-weight:800;color:#b91c1c;">No Active Plan</span>
             @endif
@@ -82,7 +90,7 @@
             required 
             style="width:auto; max-width:300px;"
         >
-        <button class="btn btn-primary" type="submit">Submit</button>
+        <button id="submit-btn" class="btn btn-primary" type="submit">Submit</button>
     </div>
 </form>
         
@@ -195,6 +203,38 @@
                     modal.style.display = 'none';
                 }
             });
+
+            const cooldownEl = document.getElementById('cooldown-timer');
+            const cooldownWrap = document.getElementById('cooldown-wrap');
+            const submitBtn = document.getElementById('submit-btn');
+            if (cooldownEl) {
+                let seconds = parseInt(cooldownEl.dataset.seconds || '0', 10);
+                if (seconds > 0 && submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.6';
+                    submitBtn.style.cursor = 'not-allowed';
+                }
+                const tick = () => {
+                    if (seconds <= 0) {
+                        if (cooldownWrap) {
+                            cooldownWrap.style.display = 'none';
+                        } else {
+                            cooldownEl.style.display = 'none';
+                        }
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.style.opacity = '';
+                            submitBtn.style.cursor = '';
+                        }
+                        clearInterval(timer);
+                        return;
+                    }
+                    cooldownEl.textContent = `${seconds}s`;
+                    seconds -= 1;
+                };
+                tick();
+                const timer = setInterval(tick, 1000);
+            }
         })();
     </script>
 
