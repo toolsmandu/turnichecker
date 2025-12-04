@@ -26,12 +26,13 @@ class PackController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'quota' => ['required', 'integer', 'min:1'],
+            'duration_days' => ['required', 'integer', 'min:1'],
         ]);
 
         Pack::create([
             'name' => $data['name'],
             'quota' => $data['quota'],
-            'duration_days' => 7,
+            'duration_days' => $data['duration_days'],
         ]);
 
         return back()->with('status', 'Pack created.');

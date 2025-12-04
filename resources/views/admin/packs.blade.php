@@ -229,7 +229,7 @@ Note: Login and Submit your files. You will get your reports within 1 hour.
         <div class="row two">
             <div>
                 <label>Duration (days)</label>
-                <input type="number" name="duration_days" value="7" min="7" max="7" readonly style="background:#f5f5f5;">
+                <input type="number" name="duration_days" value="7" min="1" required>
             </div>
         </div>
         <div class="actions"><button class="btn btn-primary">Save Pack</button></div>
