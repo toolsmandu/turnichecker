@@ -198,12 +198,7 @@
     <header>
         <div class="nav">
             <a href="{{ url('/') }}" class="brand" style="gap:0;">
-                @php $logoUrl = $settings->logoUrl(); @endphp
-                @if ($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="{{ $settings->site_name }} logo">
-                @else
-                    <div class="brand-fallback">{{ strtoupper(substr($settings->site_name, 0, 2)) }}</div>
-                @endif
+                <img src="{{ asset('logo.webp') }}" alt="{{ $settings->site_name ?? 'Logo' }} logo">
             </a>
             <div class="links">
        
