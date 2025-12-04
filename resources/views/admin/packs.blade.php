@@ -34,11 +34,7 @@
                     <div style="font-weight:700;font-size:1.05rem;">Customer Created</div>
                     <button type="button" data-close-customer-popup style="border:0;background:transparent;font-size:1.2rem;cursor:pointer;line-height:1;color:#6b7280;">×</button>
                 </div>
-                <div style="display:grid;gap:8px;margin-bottom:12px;font-size:0.97rem;">
-                    <div><strong>Email:</strong> {{ $newCustomer['email'] }}</div>
-                    <div><strong>Password:</strong> {{ $newCustomer['password'] }}</div>
-                    <div><strong>Login URL:</strong> <a href="{{ $newCustomer['login_url'] }}" target="_blank" style="color:#2563eb;text-decoration:none;">{{ $newCustomer['login_url'] }}</a></div>
-                </div>
+              
                 <div style="background:#f8fafc;border:1px dashed #d1d5db;border-radius:10px;padding:10px 12px;white-space:pre-line;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:0.92rem;margin-bottom:14px;">
                     Email:{{ $newCustomer['email'] }}
 Password:{{ $newCustomer['password'] }}

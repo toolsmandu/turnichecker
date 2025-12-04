@@ -25,8 +25,7 @@ class DashboardController extends Controller
             return view('dashboard.admin', compact('submissions'));
         }
 
-        $activePack = $user->packs()
-            ->where('expires_at', '>', now())
+        $packs = $user->packs()
             ->with(['pack'])
             ->withCount([
                 'submissions as completed_submissions_count' => function ($query) {
@@ -34,10 +33,15 @@ class DashboardController extends Controller
                 },
             ])
             ->orderByDesc('expires_at')
-            ->first();
+            ->get();
+
+        // Pick the first non-expired pack with remaining slots (safer than relying on a single query).
+        $activePack = $packs->first(function (UserPack $pack) {
+            return ! $pack->isExpired() && $pack->remainingSlots() > 0;
+        });
 
         // If the user has a valid pack, auto-mark subscription as active to prevent false blocks.
-        if (! $user->subscription_active && $activePack && $activePack->remainingSlots() > 0) {
+        if (! $user->subscription_active && $activePack) {
             $user->forceFill(['subscription_active' => true])->save();
         }
 
@@ -73,8 +77,7 @@ class DashboardController extends Controller
         }
 
 
-        $pack = $user->packs()
-            ->where('expires_at', '>', now())
+        $packs = $user->packs()
             ->with(['pack'])
             ->withCount([
                 'submissions as completed_submissions_count' => function ($query) {
@@ -82,12 +85,16 @@ class DashboardController extends Controller
                 },
             ])
             ->orderByDesc('expires_at')
-            ->first();
+            ->get();
+
+        $pack = $packs->first(function (UserPack $pack) {
+            return ! $pack->isExpired() && $pack->remainingSlots() > 0;
+        });
 
         $remainingSlots = $pack?->remainingSlots() ?? 0;
 
         // Auto-reactivate if a valid pack exists but the flag is stale/inactive.
-        if (! $user->subscription_active && $pack && $remainingSlots > 0) {
+        if (! $user->subscription_active && $pack) {
             $user->forceFill(['subscription_active' => true])->save();
         }
 
