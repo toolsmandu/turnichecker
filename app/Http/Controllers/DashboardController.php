@@ -45,7 +45,7 @@ class DashboardController extends Controller
             $user->forceFill(['subscription_active' => true])->save();
         }
 
-        $submissions = $user->submissions()->latest()->paginate(10);
+        $submissions = $user->submissions()->latest()->paginate(20);
         $lastSubmission = $user->submissions()->latest()->first();
         $cooldownRemaining = 0;
         if ($lastSubmission) {
@@ -166,6 +166,18 @@ class DashboardController extends Controller
         return Storage::disk('public')->download($submission->ai_report_path, $name);
     }
 
+    public function downloadOriginal(Request $request, Submission $submission)
+    {
+        $this->authorizeDownload($request->user(), $submission);
+
+        if (! $submission->file_path) {
+            abort(404);
+        }
+
+        $name = $submission->original_name;
+        return Storage::disk('public')->download($submission->file_path, $name);
+    }
+
     public function purchases(Request $request): View
     {
         $packs = $request->user()->packs()->with('pack')->latest()->get();
@@ -193,7 +205,10 @@ class DashboardController extends Controller
             'quota_remaining' => ['required', 'integer', 'min:0'],
         ]);
 
-        $pack = $user->packs()->orderByDesc('expires_at')->first();
+        $packs = $user->packs()->orderByDesc('expires_at')->get();
+        $pack = $packs->first(function ($pack) {
+            return $pack->expires_at && $pack->expires_at->isFuture();
+        }) ?? $packs->first();
 
         if (! $pack) {
             return back()->withErrors(['quota' => 'This customer does not have any pack to update.']);
@@ -201,6 +216,11 @@ class DashboardController extends Controller
 
         $pack->quota_remaining = $data['quota_remaining'];
         $pack->save();
+
+        // Keep subscription active if there is an active pack with quota.
+        if ($pack->expires_at && $pack->expires_at->isFuture() && $pack->quota_remaining > 0 && ! $user->subscription_active) {
+            $user->forceFill(['subscription_active' => true])->save();
+        }
 
         return back()->with('status', 'Quota updated for '.$user->email.'.');
     }
@@ -226,8 +246,8 @@ class DashboardController extends Controller
             abort(403);
         }
 
-        if ($submission->status !== 'completed') {
-            return back()->withErrors(['status' => 'Files on Processing Status cannot be deleted.']);
+        if (! in_array($submission->status, ['completed', 'cancelled'], true)) {
+            return back()->withErrors(['status' => 'Files that are still processing cannot be deleted.']);
         }
 
         $this->deleteFiles($submission);

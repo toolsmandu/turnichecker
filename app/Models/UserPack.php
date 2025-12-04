@@ -46,14 +46,18 @@ class UserPack extends Model
 
     public function remainingSlots(): int
     {
-        // Prefer eager-loaded count when available to avoid extra queries.
+        // If quota_remaining has been set/adjusted, treat it as the source of truth.
+        if (! is_null($this->quota_remaining)) {
+            return max((int) $this->quota_remaining, 0);
+        }
+
+        // Fallback: derive from pack quota minus completed submissions.
         $completedCount = $this->completed_submissions_count
             ?? $this->submissions()->where('status', 'completed')->count();
 
         $calculatedFromQuota = ($this->pack?->quota ?? 0) - $completedCount;
-        $calculatedFromQuota = max($calculatedFromQuota, 0);
 
-        return max((int) ($this->quota_remaining ?? 0), $calculatedFromQuota);
+        return max($calculatedFromQuota, 0);
     }
 
     public static function assignPack(int $userId, Pack $pack): self

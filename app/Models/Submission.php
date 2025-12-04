@@ -14,6 +14,7 @@ class Submission extends Model
         'original_name',
         'file_path',
         'status',
+        'error_note',
         'similarity_report_path',
         'ai_report_path',
     ];

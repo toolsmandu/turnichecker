@@ -43,9 +43,9 @@
                         <td style="padding:10px 6px;">
                             <span>{{ $submission->user->email }}</span>
                         </td>
-                        <td style="padding:10px 6px;font-weight:700;{{ $submission->status === 'completed' ? 'color:#1b8d5a;' : 'color:#d97706;' }}">{{ ucfirst($submission->status) }}</td>
+                        <td style="padding:10px 6px;font-weight:700;{{ $submission->status === 'completed' ? 'color:#1b8d5a;' : ($submission->status === 'cancelled' ? 'color:#b91c1c;' : 'color:#d97706;') }}">{{ ucfirst($submission->status) }}</td>
                         <td style="padding:10px 6px;">
-                            <a href="{{ asset('storage/'.$submission->file_path) }}" target="_blank">{{ $submission->original_name }}</a>
+                            <a href="{{ route('submissions.download.original', $submission) }}" target="_blank">{{ $submission->original_name }}</a>
                         </td>
                         <td style="padding:10px 6px;">
                             @if ($submission->similarity_report_path)
@@ -64,9 +64,12 @@
                             @endif
                         </td>
                         <td style="padding:10px 6px;">
-                            <form id="form-{{ $submission->id }}" action="{{ route('admin.submissions.update', $submission) }}" method="POST" enctype="multipart/form-data" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                            <form id="form-{{ $submission->id }}" action="{{ route('admin.submissions.update', $submission) }}" method="POST" enctype="multipart/form-data" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;min-width:180px;">
                                 @csrf
-                                <button class="btn btn-primary" name="status" value="completed" type="submit">Update</button>
+                                <input type="hidden" name="status" value="">
+                                <input type="hidden" name="error_note" value="">
+                                <button class="btn btn-ghost admin-cancel" type="button" data-form="form-{{ $submission->id }}" style="background:#ffe4e6;color:#b91c1c;order:2;">Cancel</button>
+                                <button class="btn btn-primary admin-complete" type="button" data-form="form-{{ $submission->id }}" style="order:1;">Update</button>
                             </form>
                         </td>
                     </tr>
@@ -75,5 +78,66 @@
         </table>
     </div>
 
-    {{ $submissions->links() }}
+    @php
+        $paginator = $submissions;
+    @endphp
+    <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="color:#4b5563;font-size:0.95rem;">
+            Showing
+            <strong>{{ $paginator->firstItem() }}</strong>
+            to
+            <strong>{{ $paginator->lastItem() }}</strong>
+            of
+            <strong>{{ $paginator->total() }}</strong>
+            results
+        </div>
+        @if ($paginator->hasPages())
+            <nav style="display:flex;gap:6px;align-items:center;">
+                @if ($paginator->onFirstPage())
+                    <span style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;color:#9ca3af;background:#f9fafb;cursor:not-allowed;">Prev</span>
+                @else
+                    <a href="{{ $paginator->previousPageUrl() }}" style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-decoration:none;color:#111827;">Prev</a>
+                @endif
+
+                @foreach ($paginator->getUrlRange(max(1, $paginator->currentPage() - 1), min($paginator->lastPage(), $paginator->currentPage() + 1)) as $page => $url)
+                    @if ($page == $paginator->currentPage())
+                        <span style="padding:8px 12px;border-radius:10px;background:#111827;color:#fff;font-weight:700;">{{ $page }}</span>
+                    @else
+                        <a href="{{ $url }}" style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-decoration:none;color:#111827;">{{ $page }}</a>
+                    @endif
+                @endforeach
+
+                @if ($paginator->hasMorePages())
+                    <a href="{{ $paginator->nextPageUrl() }}" style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-decoration:none;color:#111827;">Next</a>
+                @else
+                    <span style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;color:#9ca3af;background:#f9fafb;cursor:not-allowed;">Next</span>
+                @endif
+            </nav>
+        @endif
+    </div>
+
+    <script>
+        document.querySelectorAll('.admin-submission-form, form[id^=\"form-\"]').forEach(form => {
+            const statusInput = form.querySelector('input[name=\"status\"]');
+            const noteInput = form.querySelector('input[name=\"error_note\"]');
+            form.querySelector('.admin-complete')?.addEventListener('click', () => {
+                if (statusInput) statusInput.value = 'completed';
+                if (noteInput) noteInput.value = '';
+                form.submit();
+            });
+
+            form.querySelector('.admin-cancel')?.addEventListener('click', () => {
+                const reason = prompt('Enter the cancellation reason to send to the customer:');
+                if (reason === null) return;
+                const trimmed = reason.trim();
+                if (!trimmed) {
+                    alert('Cancellation reason is required.');
+                    return;
+                }
+                if (statusInput) statusInput.value = 'cancelled';
+                if (noteInput) noteInput.value = trimmed;
+                form.submit();
+            });
+        });
+    </script>
 @endsection

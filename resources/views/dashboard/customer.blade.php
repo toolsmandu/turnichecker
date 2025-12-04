@@ -117,18 +117,22 @@
                         <td style="padding:10px 6px;">{{ $submission->created_at->timezone('Asia/Kathmandu')->format('Y-m-d H:i') }}</td>
                         <td style="padding:10px 6px;font-weight:700;">{{ $submission->submission_number ?? '—' }}</td>
                         <td style="padding:10px 6px;">
-                            <a href="{{ asset('storage/'.$submission->file_path) }}" target="_blank">{{ $submission->original_name }}</a>
+                            <a href="{{ route('submissions.download.original', $submission) }}" target="_blank">{{ $submission->original_name }}</a>
                         </td>
-                        <td style="padding:10px 6px;font-weight:700;{{ $submission->status === 'completed' ? 'color:#1b8d5a;' : 'color:#d97706;' }}">{{ ucfirst($submission->status) }}</td>
+                        <td style="padding:10px 6px;font-weight:700;{{ $submission->status === 'completed' ? 'color:#1b8d5a;' : ($submission->status === 'cancelled' ? 'color:#b91c1c;' : 'color:#d97706;') }}">{{ ucfirst($submission->status) }}</td>
                         <td style="padding:10px 6px;">
-                            @if ($submission->similarity_report_path)
+                            @if ($submission->status === 'cancelled')
+                                <span title="{{ $submission->error_note ?? 'Cancelled' }}" style="color:#b91c1c;font-weight:700;background:#fee2e2;padding:6px 10px;border-radius:12px;display:inline-block;">Error</span>
+                            @elseif ($submission->similarity_report_path)
                                 <a href="{{ route('submissions.download.similarity', $submission) }}" target="_blank">Download</a>
                             @else
                                 —
                             @endif
                         </td>
                         <td style="padding:10px 6px;">
-                            @if ($submission->ai_report_path)
+                            @if ($submission->status === 'cancelled')
+                                <span title="{{ $submission->error_note ?? 'Cancelled' }}" style="color:#b91c1c;font-weight:700;background:#fee2e2;padding:6px 10px;border-radius:12px;display:inline-block;">Error</span>
+                            @elseif ($submission->ai_report_path)
                                 <a href="{{ route('submissions.download.ai', $submission) }}" target="_blank">Download</a>
                             @else
                                 —
@@ -147,6 +151,44 @@
             @endforelse
             </tbody>
         </table>
+    </div>
+
+    @php
+        $paginator = $submissions;
+    @endphp
+    <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="color:#4b5563;font-size:0.95rem;">
+            Showing
+            <strong>{{ $paginator->firstItem() }}</strong>
+            to
+            <strong>{{ $paginator->lastItem() }}</strong>
+            of
+            <strong>{{ $paginator->total() }}</strong>
+            results
+        </div>
+        @if ($paginator->hasPages())
+            <nav style="display:flex;gap:6px;align-items:center;">
+                @if ($paginator->onFirstPage())
+                    <span style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;color:#9ca3af;background:#f9fafb;cursor:not-allowed;">Prev</span>
+                @else
+                    <a href="{{ $paginator->previousPageUrl() }}" style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-decoration:none;color:#111827;">Prev</a>
+                @endif
+
+                @foreach ($paginator->getUrlRange(max(1, $paginator->currentPage() - 1), min($paginator->lastPage(), $paginator->currentPage() + 1)) as $page => $url)
+                    @if ($page == $paginator->currentPage())
+                        <span style="padding:8px 12px;border-radius:10px;background:#111827;color:#fff;font-weight:700;">{{ $page }}</span>
+                    @else
+                        <a href="{{ $url }}" style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-decoration:none;color:#111827;">{{ $page }}</a>
+                    @endif
+                @endforeach
+
+                @if ($paginator->hasMorePages())
+                    <a href="{{ $paginator->nextPageUrl() }}" style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;text-decoration:none;color:#111827;">Next</a>
+                @else
+                    <span style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;color:#9ca3af;background:#f9fafb;cursor:not-allowed;">Next</span>
+                @endif
+            </nav>
+        @endif
     </div>
 
     <div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);">

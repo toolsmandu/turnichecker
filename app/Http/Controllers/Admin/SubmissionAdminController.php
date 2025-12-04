@@ -24,13 +24,15 @@ class SubmissionAdminController extends Controller
     public function update(Request $request, Submission $submission): RedirectResponse
     {
         $data = $request->validate([
-            'status' => ['nullable', 'in:processing,completed'],
+            'status' => ['nullable', 'in:processing,completed,cancelled'],
             'similarity_report' => ['nullable', 'file'],
             'ai_report' => ['nullable', 'file'],
             'refund' => ['nullable', 'boolean'],
+            'error_note' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $wasCompleted = $submission->status === 'completed';
+        $wasCancelled = $submission->status === 'cancelled';
 
         if ($request->hasFile('similarity_report')) {
             if ($submission->similarity_report_path) {
@@ -48,6 +50,20 @@ class SubmissionAdminController extends Controller
 
         $newStatus = $data['status'] ?? $submission->status;
         $submission->status = $newStatus;
+        if ($newStatus === 'cancelled') {
+            $submission->error_note = $data['error_note'] ?? 'Cancelled by admin.';
+            // Clear reports on cancel to avoid stale downloads
+            if ($submission->similarity_report_path) {
+                Storage::disk('public')->delete($submission->similarity_report_path);
+                $submission->similarity_report_path = null;
+            }
+            if ($submission->ai_report_path) {
+                Storage::disk('public')->delete($submission->ai_report_path);
+                $submission->ai_report_path = null;
+            }
+        } else {
+            $submission->error_note = null;
+        }
         $submission->save();
 
         $isNowCompleted = $newStatus === 'completed';
@@ -74,6 +90,25 @@ class SubmissionAdminController extends Controller
                     function ($message) use ($customerEmail) {
                         $message->to($customerEmail)
                             ->subject('Your submission is completed');
+                    }
+                );
+            }
+        }
+
+        if ($newStatus === 'cancelled' && ! $wasCancelled) {
+            $customerEmail = $submission->user?->email;
+            if ($customerEmail) {
+                Mail::send(
+                    'emails.submission-cancelled',
+                    [
+                        'submission' => $submission,
+                        'customer' => $submission->user,
+                        'dashboardUrl' => url('/dashboard'),
+                        'adminMessage' => $submission->error_note,
+                    ],
+                    function ($mailMessage) use ($customerEmail) {
+                        $mailMessage->to($customerEmail)
+                            ->subject('Your submission was cancelled');
                     }
                 );
             }

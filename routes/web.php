@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/dashboard/submissions/{submission}', [DashboardController::class, 'destroy'])->name('dashboard.submissions.destroy');
     Route::get('/submissions/{submission}/similarity', [DashboardController::class, 'downloadSimilarity'])->name('submissions.download.similarity');
     Route::get('/submissions/{submission}/ai', [DashboardController::class, 'downloadAi'])->name('submissions.download.ai');
+    Route::get('/submissions/{submission}/original', [DashboardController::class, 'downloadOriginal'])->name('submissions.download.original');
     Route::get('/edit-details', [PasswordController::class, 'edit'])->name('account.password.edit');
     Route::post('/edit-details', [PasswordController::class, 'update'])->name('account.password.update');
     Route::get('/purchases', [DashboardController::class, 'purchases'])->name('account.purchases');
