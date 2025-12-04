@@ -88,13 +88,11 @@
 
         <div>
             <label for="logo">Logo</label>
-            <input id="logo" type="file" name="logo" accept="image/*">
-            @if ($settings->logo_path)
-                <div class="preview">
-                    <strong>Current:</strong>
-                    <img src="{{ $settings->logoUrl() }}" alt="Current logo">
-                </div>
-            @endif
+            <p style="color:#5d6b80;font-size:0.95rem;margin-top:6px;">The logo now loads from <code>/public/logo.webp</code>. Replace that file via FTP/File Manager to update the logo.</p>
+            <div class="preview">
+                <strong>Current:</strong>
+                <img src="{{ asset('logo.webp') }}" alt="Current logo">
+            </div>
         </div>
 
         <div class="actions">

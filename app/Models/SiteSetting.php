@@ -37,10 +37,10 @@ class SiteSetting extends Model
     public function logoUrl(): ?string
     {
         if (! $this->logo_path) {
-            return null;
+            return asset('logo.webp');
         }
 
-        return Storage::disk('public')->url($this->logo_path);
+        return asset('logo.webp');
     }
 
     public function howtoImageUrl(): ?string

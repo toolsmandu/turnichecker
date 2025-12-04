@@ -34,7 +34,6 @@ class SiteSettingController extends Controller
             'faqs' => ['nullable', 'string'],
             'button_text' => ['required', 'string', 'max:255'],
             'button_link' => ['required', 'string', 'max:255'],
-            'logo' => ['nullable', 'image', 'max:2048'],
             'howto_title' => ['nullable', 'string', 'max:255'],
             'howto_steps' => ['nullable', 'string'],
             'howto_button_text' => ['nullable', 'string', 'max:255'],
@@ -100,14 +99,6 @@ class SiteSettingController extends Controller
             }
 
             $settings->howto_image_path = $request->file('howto_image')->store('howto', 'public');
-        }
-
-        if ($request->hasFile('logo')) {
-            if ($settings->logo_path) {
-                Storage::disk('public')->delete($settings->logo_path);
-            }
-
-            $settings->logo_path = $request->file('logo')->store('logos', 'public');
         }
 
         $settings->save();
