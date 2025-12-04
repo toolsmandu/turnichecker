@@ -105,6 +105,9 @@ return [
         ),
     ],
 
+    // config/app.php
+'timezone' => env('APP_TIMEZONE', 'UTC'),
+
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver
