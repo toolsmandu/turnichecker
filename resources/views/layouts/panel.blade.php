@@ -166,16 +166,8 @@
     <div class="wrapper">
         <div class="card">
             <header>
-                @php
-                    $panelSettings = \App\Models\SiteSetting::first();
-                    $panelLogo = $panelSettings?->logoUrl();
-                @endphp
                 <div class="brand" style="gap:8px;">
-                    @if ($panelLogo)
-<img src="{{ config('app.logo_url') ?? asset('public/logo.webp') }}" alt="{{ $settings->site_name ?? 'Logo' }}">
-                    @else
-                        <div class="brand-badge">AI</div>
-                    @endif
+                    <img src="{{ asset('logo.webp') }}" alt="{{ config('app.name', 'Logo') }}">
                 </div>
                 @if (session('impersonator_id'))
                     <form class="impersonation" action="{{ route('impersonate.stop') }}" method="POST">
