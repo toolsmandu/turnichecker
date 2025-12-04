@@ -28,7 +28,7 @@
                     <th style="padding:10px 6px;">Submitted File</th>
                     <th style="padding:10px 6px;">Similarity</th>
                     <th style="padding:10px 6px;">AI</th>
-                    <th style="padding:10px 6px;">Action</th>
+                    <th style="padding:10px 6px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
