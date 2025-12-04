@@ -66,6 +66,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/packs/customers', [PackController::class, 'createCustomer'])->name('packs.customers.create');
     Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
     Route::post('/customers/{user}/quota', [DashboardController::class, 'updateQuota'])->name('customers.quota.update');
+    Route::post('/customers/{user}/subscription', [DashboardController::class, 'updateSubscription'])->name('customers.subscription.update');
     Route::post('/submissions/{submission}', [SubmissionAdminController::class, 'update'])->name('submissions.update');
     Route::delete('/submissions/{submission}', [SubmissionAdminController::class, 'destroy'])->name('submissions.destroy');
 });

@@ -41,6 +41,9 @@ class DashboardController extends Controller
     public function submit(Request $request): RedirectResponse
     {
         $user = $request->user();
+        if (! $user->subscription_active) {
+            return back()->withErrors(['file' => 'Your subscription is inactive. Please contact support or an admin.']);
+        }
         $pack = $user->packs()
             ->where('expires_at', '>', now())
             ->where('quota_remaining', '>', 0)
@@ -148,6 +151,20 @@ class DashboardController extends Controller
         $pack->save();
 
         return back()->with('status', 'Quota updated for '.$user->email.'.');
+    }
+
+    public function updateSubscription(Request $request, User $user): RedirectResponse
+    {
+        $data = $request->validate([
+            'subscription_active' => ['required', 'boolean'],
+        ]);
+
+        $user->subscription_active = (bool) $data['subscription_active'];
+        $user->save();
+
+        $statusText = $user->subscription_active ? 'activated' : 'deactivated';
+
+        return back()->with('status', 'Subscription '.$statusText.' for '.$user->email.'.');
     }
 
     public function destroy(Request $request, Submission $submission): RedirectResponse

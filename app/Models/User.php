@@ -24,10 +24,12 @@ class User extends Authenticatable
         'whatsapp',
         'password',
         'role',
+        'subscription_active',
     ];
 
     protected $attributes = [
         'role' => 'customer',
+        'subscription_active' => true,
     ];
 
     /**
@@ -50,6 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'subscription_active' => 'boolean',
         ];
     }
 
