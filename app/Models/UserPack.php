@@ -38,7 +38,10 @@ class UserPack extends Model
 
     public function isExpired(): bool
     {
-        return $this->expires_at?->isPast() ?? true;
+        $now = now(config('app.timezone'));
+        return $this->expires_at
+            ? $this->expires_at->lessThanOrEqualTo($now)
+            : true;
     }
 
     public function remainingSlots(): int
@@ -55,11 +58,13 @@ class UserPack extends Model
 
     public static function assignPack(int $userId, Pack $pack): self
     {
+        $now = now(config('app.timezone'));
+
         return static::create([
             'user_id' => $userId,
             'pack_id' => $pack->id,
             'quota_remaining' => $pack->quota,
-            'expires_at' => now()->addDays($pack->duration_days),
+            'expires_at' => $now->copy()->addDays($pack->duration_days),
         ]);
     }
 }
