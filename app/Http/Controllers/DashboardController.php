@@ -45,14 +45,6 @@ class DashboardController extends Controller
             return back()->withErrors(['file' => 'Your subscription is inactive. Please contact support or an admin.']);
         }
 
-        $lastSubmission = $user->submissions()->latest()->first();
-        if ($lastSubmission) {
-            $secondsSinceLast = now()->diffInSeconds($lastSubmission->created_at);
-            if ($secondsSinceLast < 30) {
-                $wait = 30 - $secondsSinceLast;
-                return back()->withErrors(['file' => "Please wait {$wait} more seconds before uploading another file."]);
-            }
-        }
 
         $pack = $user->packs()
             ->where('expires_at', '>', now())
