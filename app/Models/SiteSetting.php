@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class SiteSetting extends Model
+{
+    protected $fillable = [
+        'site_name',
+        'document_count',
+        'document_label',
+        'live_label',
+        'hero_title',
+        'hero_subtitle',
+        'feature_tags',
+        'faqs',
+        'button_text',
+        'button_link',
+        'logo_path',
+        'howto_title',
+        'howto_steps',
+        'howto_button_text',
+        'howto_button_link',
+        'howto_video_text',
+        'howto_image_path',
+        'howto_embed',
+    ];
+
+    protected $casts = [
+        'feature_tags' => 'array',
+        'faqs' => 'array',
+        'howto_steps' => 'array',
+    ];
+
+    public function logoUrl(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+
+        return asset('storage/'.$this->logo_path);
+    }
+
+    public function howtoImageUrl(): ?string
+    {
+        if (! $this->howto_image_path) {
+            return null;
+        }
+
+        return asset('storage/'.$this->howto_image_path);
+    }
+}
