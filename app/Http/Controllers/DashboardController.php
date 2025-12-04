@@ -87,7 +87,7 @@ class DashboardController extends Controller
             );
         }
 
-        return back()->with('status', 'Reports are usually generated within 1 hour between 9AM - 9PM Nepali Time. You will get email when completed.');
+        return back()->with('status', 'Reports are usually generated within 1 hour between 9AM - 9PM Nepal Time. You will get an email when completed or refresh here later.');
     }
 
     public function downloadSimilarity(Request $request, Submission $submission)
