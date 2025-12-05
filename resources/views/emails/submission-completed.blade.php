@@ -9,7 +9,7 @@
         .pill { display:inline-block; padding:6px 12px; border-radius:999px; background:#e8fff6; color:#0f9f6e; font-weight:700; font-size:0.85rem; }
         .title { margin:16px 0 8px; font-size:1.3rem; font-weight:800; color:#111827; }
         .meta { color:#6b7280; margin:0; }
-        .cta { margin-top:18px; display:inline-block; padding:12px 18px; border-radius:10px; background:linear-gradient(120deg,#5c6af0,#1cb58f); color:#fff; font-weight:700; text-decoration:none; }
+        .cta { margin-top:18px; display:inline-block; padding:12px 18px; border-radius:10px; background:linear-gradient(120deg,#5DC8A4,#797783); color:#fff; font-weight:700; text-decoration:none; }
         .footer { margin-top:18px; color:#9ca3af; font-size:0.9rem; }
         .list { margin:14px 0; padding:0; list-style:none; }
         .list li { margin:6px 0; color:#374151; }
@@ -25,8 +25,6 @@
             <li><strong>File name:</strong> {{ $submission->original_name }}</li>
             <li><strong>Status:</strong> Completed</li>
         </ul>
-
-        <a class="cta" href="{{ $dashboardUrl }}" target="_blank">View in dashboard</a>
 
         <div class="footer">
             Reports will be automatically deleted from the server in next 72 hours.

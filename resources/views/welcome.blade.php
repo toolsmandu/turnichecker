@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex,nofollow">
+    @php
+        $metaTitle = $settings->meta_title ?? ($settings->site_name ?? config('app.name', 'AI Plag'));
+        $metaDescription = $settings->meta_description ?? ($settings->hero_subtitle ?? '');
+        $shareImage = $settings->share_image ?? asset('logo.webp');
+        $pageUrl = url()->current();
+    @endphp
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ $pageUrl }}">
+    <meta property="og:title" content="TurniChecker Plagiarism + AI Service">
+    <meta property="og:description" content="Provide fast, accurate, and affordable plagiarism+ai detection">
+    <meta property="og:image" content="{{ $shareImage }}">
+    <meta property="og:site_name" content="{{ $settings->site_name ?? config('app.name', 'TurniChecker') }}">
     <title>{{ $settings->site_name ?? config('app.name', 'AI Plag') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>

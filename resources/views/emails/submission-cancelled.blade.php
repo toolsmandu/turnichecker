@@ -27,11 +27,7 @@
             <li><strong>Reason:</strong> {{ $adminMessage ?? 'Cancelled by admin.' }}</li>
         </ul>
 
-        <a class="cta" href="{{ $dashboardUrl }}" target="_blank">View in dashboard</a>
-
-        <div class="footer">
-            If you have questions, reply to this email and our team will assist you.
-        </div>
+   
     </div>
 </body>
 </html>

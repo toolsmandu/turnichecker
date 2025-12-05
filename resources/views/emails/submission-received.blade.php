@@ -26,7 +26,6 @@
             <li><strong>Customer:</strong> {{ $user->email }}</li>
         </ul>
 
-        <a class="cta" href="{{ url('/dashboard') }}" target="_blank">Open dashboard</a>
     </div>
 </body>
 </html>
