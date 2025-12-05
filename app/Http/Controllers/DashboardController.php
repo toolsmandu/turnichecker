@@ -154,6 +154,10 @@ class DashboardController extends Controller
             ?? basename($submission->similarity_report_path)
             ?? 'similarity_report';
 
+        if (! str_starts_with($name, 'similarity_')) {
+            $name = 'similarity_'.$name;
+        }
+
         return Storage::disk('public')->download($submission->similarity_report_path, $name);
     }
 
@@ -168,6 +172,10 @@ class DashboardController extends Controller
         $name = $submission->ai_report_original_name
             ?? basename($submission->ai_report_path)
             ?? 'ai_report';
+
+        if (! str_starts_with($name, 'ai_')) {
+            $name = 'ai_'.$name;
+        }
 
         return Storage::disk('public')->download($submission->ai_report_path, $name);
     }
