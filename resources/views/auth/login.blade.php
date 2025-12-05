@@ -31,9 +31,6 @@
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
                 <label style="display:flex;align-items:center;gap:8px;font-weight:500;color:#5d6b80;">
-                    <input type="checkbox" name="remember" style="width:16px;height:16px;">
-                    Remember me
-                </label>
                 <div style="display:flex;gap:12px;align-items:center;">
                     <a href="{{ route('password.request') }}">Forgot password?</a>
                     <a href="{{ url('/register') }}">Create account</a>

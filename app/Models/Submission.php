@@ -16,7 +16,9 @@ class Submission extends Model
         'status',
         'error_note',
         'similarity_report_path',
+        'similarity_report_original_name',
         'ai_report_path',
+        'ai_report_original_name',
     ];
 
     public function user(): BelongsTo

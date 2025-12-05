@@ -61,7 +61,11 @@
             font-weight: 800;
             font-size: 1.2rem;
         }
-        .brand img { height: 44px; width: auto; }
+        .brand img {
+            height: clamp(36px, 6vw, 52px);
+            width: auto;
+            max-width: 100%;
+        }
         .brand-fallback {
             width: 44px;
             height: 44px;
@@ -201,8 +205,9 @@
         }
         @media (max-width: 720px) {
             header { padding: 16px 14px; }
-            .nav { flex-wrap: wrap; gap: 12px; }
-            .links { width: 100%; justify-content: flex-end; }
+            .nav { flex-wrap: nowrap; gap: 10px; }
+            .links { width: auto; justify-content: flex-end; }
+            .cta { padding: 9px 14px; font-size: 0.95rem; white-space: nowrap; }
         }
     </style>
 </head>
@@ -217,7 +222,7 @@
                 @auth
                     <a class="cta" href="{{ url('/dashboard') }}" style="background:#273047;box-shadow:none;">My Dashboard</a>
                 @else
-                    <a class="cta" href="{{ url('/login') }}">Login | Register</a>
+                    <a class="cta" href="{{ url('/login') }}">Login</a>
                 @endauth
             </div>
         </div>

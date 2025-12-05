@@ -150,7 +150,10 @@ class DashboardController extends Controller
             abort(404);
         }
 
-        $name = 'similarity_'.$submission->original_name;
+        $name = $submission->similarity_report_original_name
+            ?? basename($submission->similarity_report_path)
+            ?? 'similarity_report';
+
         return Storage::disk('public')->download($submission->similarity_report_path, $name);
     }
 
@@ -162,7 +165,10 @@ class DashboardController extends Controller
             abort(404);
         }
 
-        $name = 'ai_'.$submission->original_name;
+        $name = $submission->ai_report_original_name
+            ?? basename($submission->ai_report_path)
+            ?? 'ai_report';
+
         return Storage::disk('public')->download($submission->ai_report_path, $name);
     }
 

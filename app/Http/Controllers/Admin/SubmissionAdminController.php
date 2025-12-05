@@ -35,17 +35,21 @@ class SubmissionAdminController extends Controller
         $wasCancelled = $submission->status === 'cancelled';
 
         if ($request->hasFile('similarity_report')) {
+            $similarityReport = $request->file('similarity_report');
             if ($submission->similarity_report_path) {
                 Storage::disk('public')->delete($submission->similarity_report_path);
             }
-            $submission->similarity_report_path = $request->file('similarity_report')->store('reports', 'public');
+            $submission->similarity_report_path = $similarityReport->store('reports', 'public');
+            $submission->similarity_report_original_name = $similarityReport->getClientOriginalName();
         }
 
         if ($request->hasFile('ai_report')) {
+            $aiReport = $request->file('ai_report');
             if ($submission->ai_report_path) {
                 Storage::disk('public')->delete($submission->ai_report_path);
             }
-            $submission->ai_report_path = $request->file('ai_report')->store('reports', 'public');
+            $submission->ai_report_path = $aiReport->store('reports', 'public');
+            $submission->ai_report_original_name = $aiReport->getClientOriginalName();
         }
 
         $newStatus = $data['status'] ?? $submission->status;
@@ -56,10 +60,12 @@ class SubmissionAdminController extends Controller
             if ($submission->similarity_report_path) {
                 Storage::disk('public')->delete($submission->similarity_report_path);
                 $submission->similarity_report_path = null;
+                $submission->similarity_report_original_name = null;
             }
             if ($submission->ai_report_path) {
                 Storage::disk('public')->delete($submission->ai_report_path);
                 $submission->ai_report_path = null;
+                $submission->ai_report_original_name = null;
             }
         } else {
             $submission->error_note = null;
