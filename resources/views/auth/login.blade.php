@@ -3,7 +3,7 @@
 @section('content')
     <div style="text-align:center;margin-bottom:14px;">
         <div style="font-size:1.5rem;font-weight:800;">Welcome back</div>
-        <p style="color:#5d6b80;margin-top:6px;">Sign in to manage content or continue checking documents.</p>
+        <p style="color:#5d6b80;margin-top:6px;">Sign in to submit your papers.</p>
     </div>
 
     @if (session('status'))

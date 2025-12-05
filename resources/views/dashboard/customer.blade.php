@@ -4,7 +4,7 @@
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
         <div>
             <div style="font-weight:800;font-size:1.4rem;">Your Dashboard</div>
-            <p style="color:#5d6b80;margin-top:6px;">Upload your file to check similarity and AI without stoting in Turnitin's database.</p>
+            <p style="color:#5d6b80;margin-top:6px;">Upload your file to check similarity and AI without storing in Turnitin's database.</p>
         </div>
         @php
             $user = auth()->user();
