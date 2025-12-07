@@ -6,13 +6,35 @@
             <div style="font-weight:800;font-size:1.4rem;">Submissions</div>
             <p style="color:#5d6b80;margin-top:6px;">Review customer uploads and attach reports.</p>
         </div>
-        <form action="{{ route('logout') }}" method="POST" style="display:flex;gap:8px;align-items:center;">
-            @csrf
+        @php
+            $adminInitial = strtoupper(substr(auth()->user()->name ?? auth()->user()->email ?? 'A', 0, 1));
+        @endphp
+        @php
+            $hasProcessing = ($processingCount ?? 0) > 0;
+            $processingBg = 'linear-gradient(135deg,#065f46,#10b981)';
+            $processingBadgeBg = '#d1fae5';
+            $processingBadgeColor = '#065f46';
+        @endphp
+        <div style="display:flex;gap:10px;align-items:center;">
+            @if ($hasProcessing)
+                <div style="background:{{ $processingBg }};color:#fff;padding:10px 14px;border-radius:12px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,0.12);">
+                    <span style="font-size:0.95rem;color:#d1d5db;">Processing</span>
+                    <span style="background:{{ $processingBadgeBg }};color:{{ $processingBadgeColor }};padding:6px 10px;border-radius:999px;font-weight:800;min-width:32px;text-align:center;">{{ $processingCount ?? 0 }}</span>
+                </div>
+            @endif
             <a class="btn btn-ghost" href="{{ route('admin.packs.index') }}" style="background:#ff80ff;">➕Add Package</a>
-            <a class="btn btn-ghost" href="{{ route('admin.customers') }}" style="background:#c4d4ff;">👥 Customer List</a>
-            <a class="btn btn-ghost" href="{{ route('admin.settings.edit') }}" style="background:#98bb98;">🏠 Customize Home</a>
-            <button class="btn btn-ghost" type="submit">➜] Logout</button>
-        </form>
+            <div style="position:relative;">
+                <button id="admin-profile-toggle" type="button" style="width:44px;height:44px;border-radius:999px;border:1px solid #e5e7eb;background:#111827;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;">{{ $adminInitial }}</button>
+                <div id="admin-profile-menu" style="position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.12);padding:8px 0;min-width:200px;display:none;z-index:20;">
+                    <a href="{{ route('admin.customers') }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;color:#111827;">👥 Customer List</a>
+                    <a href="{{ route('admin.settings.edit') }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;color:#111827;">🏠 Customize Home</a>
+                    <form id="admin-profile-logout" action="{{ route('logout') }}" method="POST" style="margin:0;">
+                        @csrf
+                        <button type="submit" style="width:100%;text-align:left;display:flex;align-items:center;gap:10px;padding:10px 14px;border:0;background:transparent;cursor:pointer;color:#b91c1c;font-size:1rem;">↩ Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (session('status'))
@@ -138,6 +160,31 @@
                 if (noteInput) noteInput.value = trimmed;
                 form.submit();
             });
+        });
+
+        const profileToggle = document.getElementById('admin-profile-toggle');
+        const profileMenu = document.getElementById('admin-profile-menu');
+        const closeProfileMenu = () => {
+            if (profileMenu) profileMenu.style.display = 'none';
+        };
+
+        profileToggle?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!profileMenu) return;
+            const isOpen = profileMenu.style.display === 'block';
+            profileMenu.style.display = isOpen ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!profileMenu || !profileToggle) return;
+            if (profileMenu.contains(e.target) || profileToggle.contains(e.target)) return;
+            closeProfileMenu();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeProfileMenu();
+            }
         });
     </script>
 @endsection

@@ -40,7 +40,7 @@
 Password:{{ $newCustomer['password'] }}
 Login URL:{{ $newCustomer['login_url'] }}
 
-Note: Login and Submit your files. You will get your reports within 1 hour.
+Note: Login and Submit your files. You will get your reports within 1-2 hours between 9AM - 9PM.
                 </div>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                     <button id="customer-popup-copy" class="btn btn-primary" type="button">Copy details</button>

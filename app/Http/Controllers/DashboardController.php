@@ -21,8 +21,9 @@ class DashboardController extends Controller
             $submissions = Submission::with(['user', 'pack'])
                 ->latest()
                 ->paginate(20);
+            $processingCount = Submission::where('status', 'processing')->count();
 
-            return view('dashboard.admin', compact('submissions'));
+            return view('dashboard.admin', compact('submissions', 'processingCount'));
         }
 
         $packs = $user->packs()
@@ -124,8 +125,8 @@ class DashboardController extends Controller
             'status' => 'processing',
         ]);
 
-        $adminEmail = env('ADMIN_EMAIL', config('mail.from.address'));
-        if ($adminEmail) {
+        $notificationEmail = 'support@toolsmandu.com';
+        if ($notificationEmail) {
             Mail::send(
                 'emails.submission-received',
                 [
@@ -133,8 +134,8 @@ class DashboardController extends Controller
                     'originalName' => $originalName,
                     'submissionNumber' => $nextNumber,
                 ],
-                function ($message) use ($adminEmail) {
-                    $message->to($adminEmail)->subject('New submission received from Customer');
+                function ($message) use ($notificationEmail) {
+                    $message->to($notificationEmail)->subject('New submission received from Customer');
                 }
             );
         }
