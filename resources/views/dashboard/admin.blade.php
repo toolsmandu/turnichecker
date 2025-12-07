@@ -37,6 +37,59 @@
         </div>
     </div>
 
+    <style>
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-icon-processing {
+            width: 12px;
+            height: 12px;
+            border: 2px solid #d97706;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: admin-spin 0.8s linear infinite;
+        }
+        .status-icon-complete {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: #1b8d5a;
+            color: #fff;
+            font-size: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            animation: admin-pulse 1.2s ease-in-out infinite;
+        }
+        .status-icon-cancelled {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: #b91c1c;
+            color: #fff;
+            font-size: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            animation: admin-pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes admin-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes admin-pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+    </style>
+
     @if (session('status'))
         <div class="status" style="background:#e9f9f1;border-color:#c7f1dc;color:#1b8d5a;margin-bottom:12px;">
             {{ session('status') }}
@@ -65,16 +118,32 @@
                         <td style="padding:10px 6px;">
                             <span>{{ $submission->user->email }}</span>
                         </td>
-                        <td style="padding:10px 6px;font-weight:700;{{ $submission->status === 'completed' ? 'color:#1b8d5a;' : ($submission->status === 'cancelled' ? 'color:#b91c1c;' : 'color:#d97706;') }}">{{ ucfirst($submission->status) }}</td>
+                        <td style="padding:10px 6px;font-weight:700;{{ $submission->status === 'completed' ? 'color:#1b8d5a;' : ($submission->status === 'cancelled' ? 'color:#b91c1c;' : 'color:#d97706;') }}">
+                            <span class="status-pill">
+                                @if ($submission->status === 'processing')
+                                    <span class="status-icon-processing" aria-hidden="true"></span>
+                                @elseif ($submission->status === 'completed')
+                                    <span class="status-icon-complete" aria-hidden="true">✓</span>
+                                @elseif ($submission->status === 'cancelled')
+                                    <span class="status-icon-cancelled" aria-hidden="true">✕</span>
+                                @endif
+                                <span>{{ ucfirst($submission->status) }}</span>
+                            </span>
+                        </td>
                         <td style="padding:10px 6px;">
-                            <a href="{{ route('submissions.download.original', $submission) }}" target="_blank">{{ $submission->original_name }}</a>
+                            <a href="{{ route('submissions.download.original', $submission) }}" target="_blank" title="{{ $submission->original_name }}" style="display:inline-block;max-width:220px;white-space:normal;word-break:break-all;line-height:1.25;">
+                                {{ $submission->original_name }}
+                            </a>
                         </td>
                         <td style="padding:10px 6px;">
                             @if ($submission->similarity_report_path)
                                 <a href="{{ route('submissions.download.similarity', $submission) }}" target="_blank">Download</a>
                             @endif
                             @if ($submission->status !== 'completed')
-                                <input type="file" form="form-{{ $submission->id }}" name="similarity_report" style="font-size:0.95rem;display:block;margin-top:6px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;">
+                                    <input type="file" form="form-{{ $submission->id }}" name="similarity_report" data-preview-target="similarity-preview-{{ $submission->id }}" style="font-size:0.95rem;display:block;">
+                                    <div id="similarity-preview-{{ $submission->id }}" class="admin-file-preview" style="font-size:0.9rem;color:#4b5563;min-height:18px;"></div>
+                                </div>
                             @endif
                         </td>
                         <td style="padding:10px 6px;">
@@ -82,16 +151,26 @@
                                 <a href="{{ route('submissions.download.ai', $submission) }}" target="_blank">Download</a>
                             @endif
                             @if ($submission->status !== 'completed')
-                                <input type="file" form="form-{{ $submission->id }}" name="ai_report" style="font-size:0.95rem;display:block;margin-top:6px;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;">
+                                    <input type="file" form="form-{{ $submission->id }}" name="ai_report" data-preview-target="ai-preview-{{ $submission->id }}" style="font-size:0.95rem;display:block;">
+                                    <div id="ai-preview-{{ $submission->id }}" class="admin-file-preview" style="font-size:0.9rem;color:#4b5563;min-height:18px;"></div>
+                                </div>
                             @endif
                         </td>
-                        <td style="padding:10px 6px;">
-                            <form id="form-{{ $submission->id }}" action="{{ route('admin.submissions.update', $submission) }}" method="POST" enctype="multipart/form-data" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;min-width:180px;">
+                        <td style="padding:10px 6px; position: relative;">
+                            <form id="form-{{ $submission->id }}" action="{{ route('admin.submissions.update', $submission) }}" method="POST" enctype="multipart/form-data" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-start;min-width:220px;">
                                 @csrf
                                 <input type="hidden" name="status" value="">
                                 <input type="hidden" name="error_note" value="">
-                                <button class="btn btn-ghost admin-cancel" type="button" data-form="form-{{ $submission->id }}" style="background:#ffe4e6;color:#b91c1c;order:2;">Cancel</button>
+                                <input type="hidden" name="admin_action" value="">
                                 <button class="btn btn-primary admin-complete" type="button" data-form="form-{{ $submission->id }}" style="order:1;">Update</button>
+                                <div style="position:relative;order:2;">
+                                    <button class="btn btn-ghost admin-modify-trigger" type="button" data-target="modify-menu-{{ $submission->id }}" style="background:#f3f4f6;color:#111827;">Modify</button>
+                                    <div id="modify-menu-{{ $submission->id }}" class="admin-modify-menu" style="display:none;position:absolute;right:0;top:110%;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.12);padding:8px;z-index:10;min-width:180px;">
+                                        <button type="button" class="btn btn-primary admin-modify-reports" data-form="form-{{ $submission->id }}" style="width:100%;margin-bottom:6px;">Modify Reports</button>
+                                        <button type="button" class="btn btn-ghost admin-cancel" data-form="form-{{ $submission->id }}" style="width:100%;background:#ffe4e6;color:#b91c1c;">Cancel</button>
+                                    </div>
+                                </div>
                             </form>
                         </td>
                     </tr>
@@ -142,9 +221,21 @@
         document.querySelectorAll('.admin-submission-form, form[id^=\"form-\"]').forEach(form => {
             const statusInput = form.querySelector('input[name=\"status\"]');
             const noteInput = form.querySelector('input[name=\"error_note\"]');
+            const actionInput = form.querySelector('input[name=\"admin_action\"]');
+            form.querySelectorAll('input[type=\"file\"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    const targetId = input.dataset.previewTarget;
+                    if (!targetId) return;
+                    const preview = document.getElementById(targetId);
+                    if (!preview) return;
+                    const fileName = input.files?.[0]?.name || '';
+                    preview.textContent = fileName ? `Selected: ${fileName}` : '';
+                });
+            });
             form.querySelector('.admin-complete')?.addEventListener('click', () => {
                 if (statusInput) statusInput.value = 'completed';
                 if (noteInput) noteInput.value = '';
+                if (actionInput) actionInput.value = 'complete';
                 form.submit();
             });
 
@@ -158,6 +249,44 @@
                 }
                 if (statusInput) statusInput.value = 'cancelled';
                 if (noteInput) noteInput.value = trimmed;
+                if (actionInput) actionInput.value = 'cancel';
+                form.submit();
+            });
+        });
+
+        document.querySelectorAll('.admin-modify-trigger').forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
+                const targetId = trigger.dataset.target;
+                const menu = document.getElementById(targetId);
+                if (!menu) return;
+                const isOpen = menu.style.display === 'block';
+                document.querySelectorAll('.admin-modify-menu').forEach(m => (m.style.display = 'none'));
+                menu.style.display = isOpen ? 'none' : 'block';
+                e.stopPropagation();
+            });
+        });
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.admin-modify-menu').forEach(m => (m.style.display = 'none'));
+        });
+
+        document.querySelectorAll('.admin-modify-menu').forEach(menu => {
+            menu.addEventListener('click', (e) => e.stopPropagation());
+        });
+
+        document.querySelectorAll('.admin-modify-reports').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const formId = btn.dataset.form;
+                const form = document.getElementById(formId);
+                if (!form) return;
+                const statusInput = form.querySelector('input[name=\"status\"]');
+                const noteInput = form.querySelector('input[name=\"error_note\"]');
+                const actionInput = form.querySelector('input[name=\"admin_action\"]');
+                const confirmMsg = 'This will delete existing reports for this submission and reopen it for new uploads. Continue?';
+                if (!confirm(confirmMsg)) return;
+                if (statusInput) statusInput.value = 'processing';
+                if (noteInput) noteInput.value = '';
+                if (actionInput) actionInput.value = 'modify_reports';
                 form.submit();
             });
         });

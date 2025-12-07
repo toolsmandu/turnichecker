@@ -4,7 +4,7 @@
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
         <div>
             <div style="font-weight:800;font-size:1.4rem;">Your Dashboard</div>
-            <p style="color:#5d6b80;margin-top:6px;">Upload your file to check similarity and AI without storing in Turnitin's database.</p>
+            <p style="color:#5d6b80;margin-top:6px;">Upload your file to check similarity and AI without storing in Turnitin's database. Your documents will be checked through Turnitin iThenticate.</p>
         </div>
         @php
             $user = auth()->user();
@@ -116,6 +116,58 @@
     @endif
 
     <div style="margin-top:16px;margin-bottom:6px;font-weight:800;font-size:1.4rem;color:#111827;">Your Submissions:</div>
+    <style>
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-icon-processing {
+            width: 12px;
+            height: 12px;
+            border: 2px solid #d97706;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: customer-spin 0.8s linear infinite;
+        }
+        .status-icon-complete {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: #1b8d5a;
+            color: #fff;
+            font-size: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            animation: customer-pulse 1.2s ease-in-out infinite;
+        }
+        .status-icon-cancelled {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: #b91c1c;
+            color: #fff;
+            font-size: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            animation: customer-pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes customer-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes customer-pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+    </style>
     <div style="overflow:auto;">
         <table style="width:100%;border-collapse:collapse;text-align:center;">
             <thead>
@@ -135,9 +187,22 @@
                         <td style="padding:10px 6px;">{{ $submission->created_at->timezone('Asia/Kathmandu')->format('Y-m-d H:i') }}</td>
                         <td style="padding:10px 6px;font-weight:700;">{{ $submission->submission_number ?? '—' }}</td>
                         <td style="padding:10px 6px;">
-                            <a href="{{ route('submissions.download.original', $submission) }}" target="_blank">{{ $submission->original_name }}</a>
+                            <a href="{{ route('submissions.download.original', $submission) }}" target="_blank" title="{{ $submission->original_name }}" style="display:inline-block;max-width:220px;white-space:normal;word-break:break-all;line-height:1.25;">
+                                {{ $submission->original_name }}
+                            </a>
                         </td>
-                        <td style="padding:10px 6px;font-weight:700;{{ $submission->status === 'completed' ? 'color:#1b8d5a;' : ($submission->status === 'cancelled' ? 'color:#b91c1c;' : 'color:#d97706;') }}">{{ ucfirst($submission->status) }}</td>
+                        <td style="padding:10px 6px;font-weight:700;{{ $submission->status === 'completed' ? 'color:#1b8d5a;' : ($submission->status === 'cancelled' ? 'color:#b91c1c;' : 'color:#d97706;') }}">
+                            <span class="status-pill">
+                                @if ($submission->status === 'processing')
+                                    <span class="status-icon-processing" aria-hidden="true"></span>
+                                @elseif ($submission->status === 'completed')
+                                    <span class="status-icon-complete" aria-hidden="true">✓</span>
+                                @elseif ($submission->status === 'cancelled')
+                                    <span class="status-icon-cancelled" aria-hidden="true">✕</span>
+                                @endif
+                                <span>{{ ucfirst($submission->status) }}</span>
+                            </span>
+                        </td>
                         <td style="padding:10px 6px;">
                             @if ($submission->status === 'cancelled')
                                 <span title="{{ $submission->error_note ?? 'Cancelled' }}" style="color:#b91c1c;font-weight:700;background:#fee2e2;padding:6px 10px;border-radius:12px;display:inline-block;">Error</span>

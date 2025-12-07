@@ -144,7 +144,7 @@ class DashboardController extends Controller
             );
         }
 
-        return back()->with('status', 'Reports will be generated within 1-2 hours. You will get an email when completed.');
+        return back()->with('status', 'File submitted successfully. You will receive an email when reports are ready.');
     }
 
     public function downloadSimilarity(Request $request, Submission $submission)

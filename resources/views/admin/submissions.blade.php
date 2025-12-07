@@ -67,9 +67,15 @@
                                 @csrf
                                 <input type="hidden" name="status" value="">
                                 <input type="hidden" name="error_note" value="">
-                                <div style="display:flex;flex-direction:column;gap:6px;">
-                                    <input type="file" name="similarity_report" style="font-size:0.95rem;">
-                                    <input type="file" name="ai_report" style="font-size:0.95rem;">
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;">
+                                        <input type="file" name="similarity_report" data-preview-target="similarity-preview-admin-{{ $submission->id }}" style="font-size:0.95rem;display:block;">
+                                        <div id="similarity-preview-admin-{{ $submission->id }}" class="admin-file-preview" style="font-size:0.9rem;color:#4b5563;min-height:18px;"></div>
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;">
+                                        <input type="file" name="ai_report" data-preview-target="ai-preview-admin-{{ $submission->id }}" style="font-size:0.95rem;display:block;">
+                                        <div id="ai-preview-admin-{{ $submission->id }}" class="admin-file-preview" style="font-size:0.9rem;color:#4b5563;min-height:18px;"></div>
+                                    </div>
                                 </div>
                                 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
                                     <label style="display:flex;align-items:center;gap:6px;font-weight:600;color:#0f8bff;">
@@ -130,6 +136,16 @@
         document.querySelectorAll('.admin-submission-form').forEach(form => {
             const statusInput = form.querySelector('input[name="status"]');
             const noteInput = form.querySelector('input[name="error_note"]');
+            form.querySelectorAll('input[type="file"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    const targetId = input.dataset.previewTarget;
+                    if (!targetId) return;
+                    const preview = document.getElementById(targetId);
+                    if (!preview) return;
+                    const fileName = input.files?.[0]?.name || '';
+                    preview.textContent = fileName ? `Selected: ${fileName}` : '';
+                });
+            });
             form.querySelector('.admin-complete')?.addEventListener('click', () => {
                 statusInput.value = 'completed';
                 noteInput.value = '';

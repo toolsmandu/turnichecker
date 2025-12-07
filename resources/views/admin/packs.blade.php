@@ -50,37 +50,41 @@ Note: Login and Submit your files. You will get your reports within 1-2 hours be
             </div>
         </div>
     @endif
-
-    <h3 style="margin:12px 0 6px;">Create Customer</h3>
+<br><br>
+    <h3 style="margin:12px 0 6px;">Create a New Account</h3>
     <form action="{{ route('admin.packs.customers.create') }}" method="POST" style="display:grid;gap:12px;margin-bottom:18px;">
         @csrf
-        <div class="row two">
-            <div>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+            <div style="min-width:200px;flex:1;">
                 <label>Email</label>
                 <input name="email" type="email" required placeholder="customer@example.com">
             </div>
-            <div>
+            <div style="min-width:180px;flex:1;">
                 <label>WhatsApp (with country code)</label>
                 <input name="whatsapp" type="text" required placeholder="+977XXXXXXXXXX">
             </div>
-            <div>
-                <label>Assign Pack (optional)</label>
+            <div style="min-width:200px;flex:1;">
+                <label>Select a Plan (optional)</label>
                 <select name="pack_id" style="width:100%;padding:10px;border:1px solid #dfe3eb;border-radius:10px;background:#f9fafc;">
-                    <option value="">Skip</option>
+                    <option value="">Choose a Plan</option>
                     @foreach ($packs as $pack)
                         <option value="{{ $pack->id }}">{{ $pack->name }} ({{ $pack->quota }} / {{ $pack->duration_days }} days)</option>
                     @endforeach
                 </select>
             </div>
+            <div>
+                <button class="btn btn-primary" type="submit" style="margin-top:24px;">Create Customer</button>
+            </div>
         </div>
-        <div class="actions"><button class="btn btn-primary" type="submit">Create Customer</button></div>
     </form>
-
-    <h3 style="margin:12px 0 6px;">Assign Pack to Customer</h3>
+<br>
+<br>
+<br>
+    <h3 style="margin:12px 0 6px;">Add Plan to Existing Customer</h3>
     <form action="{{ route('admin.packs.assign') }}" method="POST" style="display:grid;gap:12px;margin-bottom:18px;">
         @csrf
-        <div class="row two">
-            <div style="position:relative;">
+        <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+            <div style="position:relative;min-width:240px;flex:1;">
                 <label>Customer</label>
                 <input type="hidden" name="user_id" id="customer-hidden" required>
                 <div id="customer-select" style="border:1px solid #dfe3eb;border-radius:10px;background:#f9fafc;padding:0;position:relative;">
@@ -93,7 +97,7 @@ Note: Login and Submit your files. You will get your reports within 1-2 hours be
                     </div>
                 </div>
             </div>
-            <div>
+            <div style="min-width:200px;flex:1;">
                 <label>Pack</label>
                 <select name="pack_id" required style="width:100%;padding:10px;border:1px solid #dfe3eb;border-radius:10px;background:#f9fafc;">
                     <option value="">Select pack</option>
@@ -102,8 +106,10 @@ Note: Login and Submit your files. You will get your reports within 1-2 hours be
                     @endforeach
                 </select>
             </div>
+            <div>
+                <button class="btn btn-primary" type="submit" style="margin-top:20px;">Assign Pack</button>
+            </div>
         </div>
-        <div class="actions"><button class="btn btn-primary">Assign Pack</button></div>
     </form>
 
     <script>
@@ -169,8 +175,8 @@ Note: Login and Submit your files. You will get your reports within 1-2 hours be
             });
         }
     </script>
-
-    <h3 style="margin:12px 0 6px;">Existing Packs</h3>
+<br><br>
+    <h3 style="margin:12px 0 6px;">Subscription Package List</h3>
     <div style="overflow:auto;">
         <table style="width:100%;border-collapse:collapse;">
             <thead>
@@ -212,8 +218,8 @@ Note: Login and Submit your files. You will get your reports within 1-2 hours be
             </tbody>
         </table>
     </div>
-
-    <h3 style="margin:12px 0 6px;">Create Pack</h3>
+<br>
+    <h3 style="margin:12px 0 6px;">Create a Pack</h3>
     <form action="{{ route('admin.packs.store') }}" method="POST" style="display:grid;gap:12px;margin-bottom:18px;">
         @csrf
         <div class="row two">

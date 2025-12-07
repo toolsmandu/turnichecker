@@ -29,6 +29,7 @@ class SubmissionAdminController extends Controller
             'ai_report' => ['nullable', 'file'],
             'refund' => ['nullable', 'boolean'],
             'error_note' => ['nullable', 'string', 'max:1000'],
+            'admin_action' => ['nullable', 'in:complete,cancel,modify_reports'],
         ]);
 
         $wasCompleted = $submission->status === 'completed';
@@ -52,24 +53,35 @@ class SubmissionAdminController extends Controller
             $submission->ai_report_original_name = $aiReport->getClientOriginalName();
         }
 
+        $action = $data['admin_action'] ?? null;
+        $skipEmail = $action === 'modify_reports';
         $newStatus = $data['status'] ?? $submission->status;
-        $submission->status = $newStatus;
-        if ($newStatus === 'cancelled') {
-            $submission->error_note = $data['error_note'] ?? 'Cancelled by admin.';
-            // Clear reports on cancel to avoid stale downloads
-            if ($submission->similarity_report_path) {
-                Storage::disk('public')->delete($submission->similarity_report_path);
-                $submission->similarity_report_path = null;
-                $submission->similarity_report_original_name = null;
-            }
-            if ($submission->ai_report_path) {
-                Storage::disk('public')->delete($submission->ai_report_path);
-                $submission->ai_report_path = null;
-                $submission->ai_report_original_name = null;
-            }
-        } else {
+
+        if ($action === 'modify_reports') {
+            $newStatus = 'processing';
+            $this->deleteReportFilesOnly($submission);
             $submission->error_note = null;
+        } else {
+            $submission->status = $newStatus;
+            if ($newStatus === 'cancelled') {
+                $submission->error_note = $data['error_note'] ?? 'Cancelled by admin.';
+                // Clear reports on cancel to avoid stale downloads
+                if ($submission->similarity_report_path) {
+                    Storage::disk('public')->delete($submission->similarity_report_path);
+                    $submission->similarity_report_path = null;
+                    $submission->similarity_report_original_name = null;
+                }
+                if ($submission->ai_report_path) {
+                    Storage::disk('public')->delete($submission->ai_report_path);
+                    $submission->ai_report_path = null;
+                    $submission->ai_report_original_name = null;
+                }
+            } else {
+                $submission->error_note = null;
+            }
         }
+
+        $submission->status = $newStatus;
         $submission->save();
 
         $isNowCompleted = $newStatus === 'completed';
@@ -83,7 +95,7 @@ class SubmissionAdminController extends Controller
             $submission->pack->increment('quota_remaining');
         }
 
-        if ($isNowCompleted && ! $wasCompleted) {
+        if ($isNowCompleted && ! $wasCompleted && ! $skipEmail) {
             $customerEmail = $submission->user?->email;
             if ($customerEmail) {
                 Mail::send(
@@ -101,7 +113,7 @@ class SubmissionAdminController extends Controller
             }
         }
 
-        if ($newStatus === 'cancelled' && ! $wasCancelled) {
+        if ($newStatus === 'cancelled' && ! $wasCancelled && ! $skipEmail) {
             $customerEmail = $submission->user?->email;
             if ($customerEmail) {
                 Mail::send(
@@ -141,6 +153,20 @@ class SubmissionAdminController extends Controller
         }
         if ($submission->ai_report_path) {
             Storage::disk('public')->delete($submission->ai_report_path);
+        }
+    }
+
+    private function deleteReportFilesOnly(Submission $submission): void
+    {
+        if ($submission->similarity_report_path) {
+            Storage::disk('public')->delete($submission->similarity_report_path);
+            $submission->similarity_report_path = null;
+            $submission->similarity_report_original_name = null;
+        }
+        if ($submission->ai_report_path) {
+            Storage::disk('public')->delete($submission->ai_report_path);
+            $submission->ai_report_path = null;
+            $submission->ai_report_original_name = null;
         }
     }
 }
