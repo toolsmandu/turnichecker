@@ -16,6 +16,8 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::first() ?? new SiteSetting([
             'hero_subtitle' => 'We provide fast, accurate, and affordable plagiarism detection powered by cutting-edge AI. Whether you\'re a student, researcher, or professional, our tools ensure originality and integrity in your work. Get instant results, seamless reports, and a hassle-free experience—all at the best price.',
             'feature_tags' => ['Cheapest', 'Fastest', 'Affordable', 'AI Advanced'],
+            'notice_header' => 'Plan Reminder',
+            'notice_body' => 'Do not buy a new plan until your existing slots reach zero. If you buy a new plan early, your current slots will be removed and only the new plan’s slots will be added.',
         ]);
 
         return view('admin.settings', ['settings' => $settings]);
@@ -41,6 +43,8 @@ class SiteSettingController extends Controller
             'howto_video_text' => ['nullable', 'string', 'max:255'],
             'howto_image' => ['nullable', 'image', 'max:4096'],
             'howto_embed' => ['nullable', 'string'],
+            'notice_header' => ['nullable', 'string', 'max:255'],
+            'notice_body' => ['nullable', 'string'],
         ]);
 
         $settings = SiteSetting::first() ?? new SiteSetting();
@@ -59,6 +63,8 @@ class SiteSettingController extends Controller
             'howto_button_link' => $data['howto_button_link'] ?? null,
             'howto_video_text' => $data['howto_video_text'] ?? null,
             'howto_embed' => $data['howto_embed'] ?? null,
+            'notice_header' => $data['notice_header'] ?? null,
+            'notice_body' => $data['notice_body'] ?? null,
         ]);
 
         $tags = collect(explode(',', $data['feature_tags'] ?? ''))

@@ -26,6 +26,8 @@ class SiteSetting extends Model
         'howto_video_text',
         'howto_image_path',
         'howto_embed',
+        'notice_header',
+        'notice_body',
     ];
 
     protected $casts = [

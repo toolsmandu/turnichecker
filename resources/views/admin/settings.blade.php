@@ -80,6 +80,18 @@
             <textarea id="hero_subtitle" name="hero_subtitle" rows="4" required>{{ old('hero_subtitle', $settings->hero_subtitle) }}</textarea>
         </div>
 
+        <div class="row two">
+            <div>
+                <label for="notice_header">Customer Notice Header</label>
+                <input id="notice_header" name="notice_header" value="{{ old('notice_header', $settings->notice_header) }}" placeholder="Plan Reminder">
+            </div>
+            <div>
+                <label for="notice_body">Customer Notice Body (one bullet per line)</label>
+                <textarea id="notice_body" name="notice_body" rows="4" placeholder="Line 1&#10;Line 2&#10;Line 3">{{ old('notice_body', $settings->notice_body) }}</textarea>
+                <p style="color:#5d6b80;font-size:0.95rem;margin-top:6px;">Each line becomes a separate bullet on the customer dashboard.</p>
+            </div>
+        </div>
+
         <div>
             <label for="faqs">FAQs (one per line as "Question | Answer")</label>
             <textarea id="faqs" name="faqs" rows="4" placeholder="How fast are results? | Reports generate in under 60 seconds.">{{ $faqString }}</textarea>

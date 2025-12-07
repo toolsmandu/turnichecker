@@ -71,9 +71,27 @@
                 <span style="padding:8px 12px;background:#fee2e2;border-radius:10px;font-weight:800;color:#b91c1c;">No Active Plan</span>
             @endif
         </div>
-        @if ($hasActivePack)
-            <div style="margin-top:10px;padding:10px 12px;border:1px dashed #fbbf24;background:#fff7ed;border-radius:10px;color:#92400e;font-weight:600;">
-                Do not buy a new plan until your existing slots reach zero. If you buy a new plan early, your current slots will be removed and only the new plan’s slots will be added.
+        @php
+            $noticeHeader = optional($settings)->notice_header ?? null;
+            $noticeBody = optional($settings)->notice_body ?? null;
+            $noticeLines = collect(preg_split('/\r\n|\r|\n/', $noticeBody ?? ''))
+                ->map(fn ($line) => trim($line))
+                ->filter()
+                ->values();
+            $hasNotice = $hasActivePack && ($noticeHeader || $noticeLines->isNotEmpty());
+        @endphp
+        @if ($hasNotice)
+            <div style="margin-top:10px;padding:12px 14px;border:1px dashed #fbbf24;background:#fff7ed;border-radius:10px;color:#92400e;">
+                @if ($noticeHeader)
+                    <div style="font-weight:800;margin-bottom:6px;">{{ $noticeHeader }}</div>
+                @endif
+                @if ($noticeLines->isNotEmpty())
+                    <ul style="margin:0;padding-left:18px;display:grid;gap:6px;font-weight:600;line-height:1.4;">
+                        @foreach ($noticeLines as $line)
+                            <li>{{ $line }}</li>
+                        @endforeach
+                    </ul>
+                @endif
             </div>
         @endif
     </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Submission;
 use App\Models\UserPack;
 use App\Models\User;
+use App\Models\SiteSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -56,11 +57,14 @@ class DashboardController extends Controller
             }
         }
 
+        $settings = SiteSetting::first();
+
         return view('dashboard.customer', [
             'activePack' => $activePack,
             'effectiveQuotaRemaining' => $activePack?->remainingSlots() ?? 0,
             'submissions' => $submissions,
             'cooldownRemaining' => $cooldownRemaining,
+            'settings' => $settings,
         ]);
     }
 
