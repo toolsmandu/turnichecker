@@ -229,15 +229,24 @@ class DashboardController extends Controller
 
     public function expired(): View
     {
+        $now = now(config('app.timezone'));
+
         $latestExpiredIds = UserPack::query()
             ->whereNotNull('expires_at')
-            ->where('expires_at', '<=', now(config('app.timezone')))
+            ->where('expires_at', '<=', $now)
+            ->where('quota_remaining', '<=', 0)
             ->selectRaw('MAX(id) as id')
             ->groupBy('user_id')
             ->pluck('id');
 
         $expiredPacks = UserPack::with(['pack', 'user'])
             ->whereIn('id', $latestExpiredIds)
+            ->whereHas('user', function ($query) use ($now) {
+                $query->whereDoesntHave('packs', function ($packQuery) use ($now) {
+                    $packQuery->where('expires_at', '>', $now)
+                        ->where('quota_remaining', '>', 0);
+                });
+            })
             ->orderByDesc('expires_at')
             ->paginate(50);
 
