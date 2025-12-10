@@ -70,6 +70,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/customers/{user}/subscription', [DashboardController::class, 'updateSubscription'])->name('customers.subscription.update');
     Route::post('/submissions/{submission}', [SubmissionAdminController::class, 'update'])->name('submissions.update');
     Route::delete('/submissions/{submission}', [SubmissionAdminController::class, 'destroy'])->name('submissions.destroy');
+    Route::get('/sales-history', [DashboardController::class, 'salesHistory'])->name('sales.history');
+    Route::get('/expired', [DashboardController::class, 'expired'])->name('expired');
 });
 
 Route::post('/impersonate/stop', [ImpersonationController::class, 'stop'])->middleware('auth')->name('impersonate.stop');

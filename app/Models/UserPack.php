@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use App\Models\Submission;
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class UserPack extends Model
 {
     protected $fillable = [
+        'order_id',
         'user_id',
         'pack_id',
         'quota_remaining',
@@ -34,6 +35,29 @@ class UserPack extends Model
     public function submissions(): HasMany
     {
         return $this->hasMany(Submission::class, 'user_pack_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (UserPack $userPack) {
+            if (! $userPack->order_id) {
+                $userPack->order_id = static::generateOrderId();
+            }
+        });
+    }
+
+    public static function generateOrderId(): string
+    {
+        return DB::transaction(function () {
+            $currentMax = (int) (static::query()
+                ->lockForUpdate()
+                ->selectRaw("COALESCE(MAX(CAST(SUBSTRING(order_id, 5) AS UNSIGNED)), 0) as max_order")
+                ->value('max_order') ?? 0);
+
+            $nextNumber = $currentMax + 1;
+
+            return 'ORD-'.$nextNumber;
+        });
     }
 
     public function isExpired(): bool
@@ -65,6 +89,7 @@ class UserPack extends Model
         $now = now(config('app.timezone'));
 
         return static::create([
+            'order_id' => static::generateOrderId(),
             'user_id' => $userId,
             'pack_id' => $pack->id,
             'quota_remaining' => $pack->quota,

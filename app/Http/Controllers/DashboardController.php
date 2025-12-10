@@ -218,6 +218,32 @@ class DashboardController extends Controller
         return view('admin.customers', compact('customers'));
     }
 
+    public function salesHistory(): View
+    {
+        $salesHistory = UserPack::with(['pack', 'user'])
+            ->orderByDesc('created_at')
+            ->paginate(50);
+
+        return view('admin.sales-history', compact('salesHistory'));
+    }
+
+    public function expired(): View
+    {
+        $latestExpiredIds = UserPack::query()
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', now(config('app.timezone')))
+            ->selectRaw('MAX(id) as id')
+            ->groupBy('user_id')
+            ->pluck('id');
+
+        $expiredPacks = UserPack::with(['pack', 'user'])
+            ->whereIn('id', $latestExpiredIds)
+            ->orderByDesc('expires_at')
+            ->paginate(50);
+
+        return view('admin.expired', compact('expiredPacks'));
+    }
+
     public function updateQuota(Request $request, User $user): RedirectResponse
     {
         $data = $request->validate([

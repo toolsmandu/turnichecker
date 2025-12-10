@@ -45,10 +45,12 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
+        $sanitizedWhatsapp = preg_replace('/[\\s\\-()]/', '', $data['whatsapp']);
+
         $user = User::create([
             'name' => strstr($data['email'], '@', true),
             'email' => $data['email'],
-            'whatsapp' => $data['whatsapp'],
+            'whatsapp' => $sanitizedWhatsapp,
             'password' => $data['password'],
             'role' => 'customer',
         ]);

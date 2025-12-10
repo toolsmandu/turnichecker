@@ -33,7 +33,7 @@ class PasswordController extends Controller
         }
 
         if ($request->has('whatsapp')) {
-            $user->whatsapp = $request->input('whatsapp');
+            $user->whatsapp = preg_replace('/[\\s\\-()]/', '', (string) $request->input('whatsapp'));
         }
 
         $user->save();

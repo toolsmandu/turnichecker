@@ -85,10 +85,12 @@ class PackController extends Controller
             'pack_id' => ['nullable', 'exists:packs,id'],
         ]);
 
+        $sanitizedWhatsapp = preg_replace('/[\\s\\-()]/', '', $data['whatsapp']);
+
         $user = User::create([
             'email' => $data['email'],
             'name' => $data['name'] ?? strstr($data['email'], '@', true),
-            'whatsapp' => $data['whatsapp'],
+            'whatsapp' => $sanitizedWhatsapp,
             'password' => Hash::make('paper@123'),
             'role' => 'customer',
         ]);

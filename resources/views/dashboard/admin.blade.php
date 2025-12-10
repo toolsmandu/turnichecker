@@ -23,9 +23,11 @@
                 </div>
             @endif
             <a class="btn btn-ghost" href="{{ route('admin.packs.index') }}" style="background:#ff80ff;">➕Add Package</a>
+            <a class="btn btn-ghost" href="{{ route('admin.expired') }}" style="background:#facc15;">⌛ Expired List</a>
             <div style="position:relative;">
                 <button id="admin-profile-toggle" type="button" style="width:44px;height:44px;border-radius:999px;border:1px solid #e5e7eb;background:#111827;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;">{{ $adminInitial }}</button>
                 <div id="admin-profile-menu" style="position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.12);padding:8px 0;min-width:200px;display:none;z-index:20;">
+                    <a href="{{ route('admin.sales.history') }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;color:#111827;">📈 Sales History</a>
                     <a href="{{ route('admin.customers') }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;color:#111827;">👥 Customer List</a>
                     <a href="{{ route('admin.settings.edit') }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;color:#111827;">🏠 Customize Home</a>
                     <form id="admin-profile-logout" action="{{ route('logout') }}" method="POST" style="margin:0;">
